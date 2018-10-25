@@ -8,12 +8,15 @@
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import cryptlib from "cryptlib";
-import jwt from "jsonwebtoken";
+var jwt = require("jsonwebtoken");
+
 // var _crypt       = require('cryptlib');   
 // var jwt          = require('jsonwebtoken');
 // var fs           = require('fs');
 // var jws          = require('jws');
+var decoded1:string;
+var decoded2:string;
+var viwer = null;
 
 const {ccclass, property} = cc._decorator;
 
@@ -23,17 +26,22 @@ export default class NewClass extends cc.Component {
     @property(cc.EditBox) inputStrToken: cc.EditBox = null;
     @property(cc.EditBox) inputStrKey: cc.EditBox = null;
     @property(cc.Button) btnCheck: cc.Button = null;
+    @property(cc.Button) btnClose: cc.Button = null;
     @property(cc.Layout) layoutLogViewer: cc.Layout = null;
+    @property(cc.EditBox) inputLogView: cc.EditBox = null;
 
     strToken:string = '';
-    strKey:string = '';
+    strKey:string = '';    
+
 
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+        viwer = this.layoutLogViewer;
         // Cryptlib.generateRandomIV("ss");
-        this.btnCheck.node.on('click',this.onCheckJWT,this);
+        this.btnCheck.node.on('click',this.onCheckJWT, this);
+        this.btnClose.node.on('click', this.onCloseLogViwer, this);
     }
 
     onDestroy() {
@@ -44,55 +52,70 @@ export default class NewClass extends cc.Component {
 
     }
 
-    openLogViwer() {
-        // this.layoutLogViewer.
-    }
-
     onCheckJWT() {
+        
         this.strToken = this.inputStrToken.string;
         this.strKey = this.inputStrKey.string;
         cc.log("strToken : ", this.strToken);
         cc.log("strKey : ", this.strKey);
-        jwt.verify(this.strToken, this.strKey, function (decoded) {
-            // if (err) {
-            //     console.log(err);
-            // } else  {            
-                console.log(decoded) // bar
-            // }
+        
+        jwt.verify(this.strToken, this.strKey, function callback (err, decoded) {
+            if (err) {
+                console.log(err);
+                // decoded1 = JSON.stringify(err);
+            } else  {            
+                console.log(decoded); // bar
+                // decoded1 = JSON.stringify(decoded);
+            }
         });
 
         // alg mismatch
+       
         jwt.verify(this.strToken, this.strKey, { algorithms: ['RS256'] }, function (err, payload) {
             // if token alg != RS256,  err == invalid signature
             if (err) {
                 console.log(err);
+                decoded2 = JSON.stringify(err);
             } else  {            
-                console.log(payload) // bar
+                console.log(payload); // bar
+                decoded2 = JSON.stringify(payload);                
             }
         });
-        // this.layoutLogViewer.node.runAction(this.setEnableAction());
+        viwer.node.runAction(this.setEnableAction());        
+
     }
 
     onCloseLogViwer() {
-        // this.layoutLogViewer.node.runAction(this.setDisableAction());
+        viwer.node.runAction(this.setDisableAction());
+        cc.log("close");
     }
 
-    stopAction() {
+    stopShowAction() {        
+        this.inputLogView.string = this.setFormatStringJSON(decoded2);
+    }
 
+    stopCloseAction() {
+        this.inputLogView.string = "";
     }
 
     setEnableAction() {
-        let posX = this.layoutLogViewer.node.getContentSize().width / 2;
+        let posX = viwer.node.getContentSize().width / 2;
         var actionMove = cc.moveTo(0.3, cc.v2(posX, 0));
-        var actionCallFunc = cc.callFunc(this.stopAction, this);
+        var actionCallFunc = cc.callFunc(this.stopShowAction, this);
         return cc.sequence(actionMove, actionCallFunc);
     }
 
     setDisableAction() {        
-        let posX = this.layoutLogViewer.node.getContentSize().width / 2;
+        let posX = viwer.node.getContentSize().width / 2;
         var actionMove = cc.moveTo(0.3, cc.v2(posX, -960));
-        var actionCallFunc = cc.callFunc(this.stopAction, this);
+        var actionCallFunc = cc.callFunc(this.stopCloseAction, this);
         return cc.sequence(actionMove, actionCallFunc);
+    }
+
+    setFormatStringJSON(_json:any) {
+        var strFmt = _json;
+
+        return strFmt;
     }
     // update (dt) {}
 }
