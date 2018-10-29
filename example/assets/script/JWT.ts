@@ -14,7 +14,7 @@ var jwt = require("jsonwebtoken");
 // var jwt          = require('jsonwebtoken');
 // var fs           = require('fs');
 // var jws          = require('jws');
-var decoded1:string;
+var decodedToken:string;
 var decoded2:string;
 var viwer = null;
 
@@ -79,9 +79,8 @@ export default class NewClass extends cc.Component {
         cc.sys.localStorage.clear();      
     }
 
-    onCheckJWT() {
-        
-        this.strToken = this.inputStrToken.string;
+    onCheckJWT() {        
+        this.strToken = decodedToken;
         this.strKey = this.inputStrKey.string;
         cc.log("strToken : ", this.strToken);
         cc.log("strKey : ", this.strKey);
@@ -167,7 +166,7 @@ export default class NewClass extends cc.Component {
     print_data_callback_post(_obj:any) {
         cc.log('object :>> '+JSON.stringify(_obj));
         // this.inputStrToken.string = JSON.stringify(_obj);
-        
+        decodedToken = _obj.access_token;
         this.inputStrToken.string = "App name : \t" + _obj.appname;
         this.inputStrToken.string += "\nCallback : \t" + _obj.callback;
         this.inputStrToken.string += "\nSSO ID : \t" + _obj.ssoid;

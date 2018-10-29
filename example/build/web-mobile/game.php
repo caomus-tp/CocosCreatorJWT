@@ -69,7 +69,6 @@
         document.body.removeChild(cocos2d);
         cocos2d.removeEventListener('load', engineLoaded, false);
         window.boot();
-
         var _appname = "<?php echo $_POST['appname'] ?>";
         var _callback = "<?php echo $_POST['callback'] ?>";
         var _ssoid = "<?php echo $_POST['ssoid'] ?>";
